@@ -85,6 +85,10 @@ module Sharepoint
       @site.query :get, (make_item_filter options)
     end
 
+    def get_item_by_id(id)
+      @site.query :get, "#{__metadata['id']}/getitembyid(#{id})"
+    end
+
     def item_count
       @site.query :get, "#{__metadata['id']}/ItemCount"
     end

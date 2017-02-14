@@ -6,7 +6,7 @@ module Sharepoint
 
   class User < Sharepoint::Object
     include Sharepoint::Type
-    sharepoint_resource getter: :siteusers
+    sharepoint_resource getter: :siteusers, get_from_name: :getuserbyid
     belongs_to :group
   end
 
