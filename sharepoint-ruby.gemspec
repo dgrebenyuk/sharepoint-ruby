@@ -9,6 +9,7 @@ Gem::Specification.new do |s|
   s.files        = ['lib/sharepoint-ruby.rb',   'lib/sharepoint-session.rb',
                     'lib/sharepoint-object.rb', 'lib/sharepoint-types.rb', 'lib/sharepoint-properties.rb',
                     'lib/sharepoint-users.rb',  'lib/sharepoint-lists.rb', 'lib/sharepoint-files.rb', 'lib/sharepoint-fields.rb',
+                    'lib/sharepoint-webhooks.rb',
                     'lib/sharepoint-stringutils.rb',
                     'lib/soap/authenticate.xml.erb',
                     'lib/sharepoint-http-auth.rb',

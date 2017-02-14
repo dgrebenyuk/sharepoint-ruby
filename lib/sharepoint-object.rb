@@ -65,7 +65,7 @@ module Sharepoint
         options[:get_from_name] ||= options[:getter]
         Sharepoint::Site.send :define_method, options[:method_name] do
           self.query :get, options[:getter].to_s
-        end unless options[:no_root_collection] == true
+        end unless options[:no_root_collection]
         Sharepoint::Site.send :define_method, (self.name).split('::').last.downcase do |id|
           if id =~ /^[a-z0-9]{8}-([a-z0-9]{4}-){3}[a-z0-9]{12}$/
             self.query :get, "#{options[:getter]}(guid'#{id}')"
@@ -78,6 +78,7 @@ module Sharepoint
       def belongs_to resource_name
         resource_name = resource_name.to_s
         class_name    = (self.name).split('::').last.downcase
+        class_name    = 'getchange' if class_name == 'changequery'
         method_name   = class_name.pluralize
         define_singleton_method "all_from_#{resource_name}" do |resource|
           resource.site.query :get, "#{resource.__metadata['uri']}/#{method_name}"

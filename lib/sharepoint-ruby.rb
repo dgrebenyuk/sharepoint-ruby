@@ -65,19 +65,19 @@ module Sharepoint
     end
 
     def query method, uri, body = nil, skip_json=false, &block
-      uri        = if uri =~ /^http/ then uri else api_path(uri) end
+      uri        = uri =~ /^http/ ? uri : api_path(uri)
       arguments  = [ uri ]
-      arguments << body if method != :get
+      arguments << body unless method == :get
       result = Curl::Easy.send "http_#{method}", *arguments do |curl|
         curl.headers["Cookie"]          = @session.cookie
         curl.headers["Accept"]          = "application/json;odata=verbose"
         if method != :get
           curl.headers["Content-Type"]    = curl.headers["Accept"]
-          curl.headers["X-RequestDigest"] = form_digest unless @getting_form_digest == true
+          curl.headers["X-RequestDigest"] = form_digest unless @getting_form_digest
         end
         curl.verbose = @verbose
-        @session.send :curl, curl unless not @session.methods.include? :curl
-        block.call curl           unless block.nil?
+        @session.send :curl, curl if @session.methods.include? :curl
+        block.call curl           if block.present?
       end
 
       unless skip_json || (result.body_str.nil? || result.body_str.empty?)
@@ -113,7 +113,7 @@ module Sharepoint
     # Uses sharepoint's __metadata field to solve which Ruby class to instantiate,
     # and return the corresponding Sharepoint::Object.
     def make_object_from_data data
-      type_name  = data['__metadata']['type'].gsub(/^SP\./, '')
+      type_name  = data['__metadata']['type'].gsub(/(^(SP\.|(\w+\.)+)|\(.*)/, '')
       type_parts = type_name.split '.'
       type_name  = type_parts.pop
       constant   = Sharepoint
@@ -128,4 +128,3 @@ module Sharepoint
     end
   end
 end
-
