@@ -19,6 +19,14 @@ module Sharepoint
       @site.query :post, uri, content
     end
 
+    def add_template_file name, templatefiletype
+      filepath = "#{server_relative_url}/#{name}"
+      uri = "#{__metadata['uri']}/files/addtemplatefile(" \
+            "templatefiletype=#{templatefiletype}," \
+            "urloffile='#{URI::encode(filepath.to_s)}')"
+      @site.query :post, uri
+    end
+
     def add_folder name
       uri  = "#{__metadata['uri']}/folders"
       body = { '__metadata' => { 'type' => 'SP.Folder' }, 'ServerRelativeUrl' => name.to_s }
