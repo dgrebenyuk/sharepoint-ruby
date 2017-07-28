@@ -3,7 +3,8 @@ require 'open-uri'
 module Sharepoint
   class Folder < Sharepoint::Object
     include Sharepoint::Type
-    sharepoint_resource get_from_name: 'GetFolderByServerRelativeUrl'
+    sharepoint_resource getter: 'GetFolderById',
+                        get_from_name: 'GetFolderByServerRelativeUrl'
 
     field 'WelcomePage'
     field 'UniqueContentTypeOrder'
