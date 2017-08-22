@@ -160,11 +160,11 @@ module Sharepoint
       url         = item_uri
       has_options = false
       options.each do |key,value|
-        url += if has_options then '&' else '?' end
-        url += "$#{key}=#{URI::encode value.to_s}"
+        url += if has_options then ' and ' else '?' end
+        url += "$filter=#{key} eq '#{value.to_s}'"
         has_options = true
       end
-      url
+      URI::encode url
     end
   end
 
