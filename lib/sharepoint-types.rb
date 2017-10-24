@@ -29,6 +29,7 @@ require 'sharepoint-lists'
 require 'sharepoint-files'
 require 'sharepoint-fields'
 require 'sharepoint-webhooks'
+require 'sharepoint-video-service'
 require 'date'
 
 module Sharepoint

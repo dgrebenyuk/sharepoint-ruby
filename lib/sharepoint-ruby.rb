@@ -40,8 +40,12 @@ module Sharepoint
       "#{@protocol}://#{@server_url}/_forms/default.aspx?wa=wsignin1.0"
     end
 
-    def api_path uri
-      "#{@protocol}://#{@url}/_api/web/#{uri}"
+    def api_path uri, service
+      if service == 'video'
+        "#{@protocol}://#{@server_url}/portals/hub/_api/videoservice/#{uri}"
+      else
+        "#{@protocol}://#{@url}/_api/web/#{uri}"
+      end
     end
 
     def filter_path uri
@@ -64,8 +68,8 @@ module Sharepoint
       @web_context.form_digest_value
     end
 
-    def query method, uri, body = nil, skip_json=false, &block
-      uri        = uri =~ /^http/ ? uri : api_path(uri)
+    def query method, uri, body = nil, skip_json=false, service = 'web', &block
+      uri        = uri =~ /^http/ ? uri : api_path(uri, service)
       arguments  = [ uri ]
       arguments << body unless method == :get
       result = Curl::Easy.send "http_#{method}", *arguments do |curl|
