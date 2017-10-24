@@ -64,13 +64,13 @@ module Sharepoint
         options[:getter]        ||= options[:method_name]
         options[:get_from_name] ||= options[:getter]
         Sharepoint::Site.send :define_method, options[:method_name] do
-          self.query :get, options[:getter].to_s
+          self.query :get, options[:getter].to_s, nil, false, options[:service]
         end unless options[:no_root_collection]
         Sharepoint::Site.send :define_method, (self.name).split('::').last.downcase do |id|
           if id =~ /^[a-z0-9]{8}-([a-z0-9]{4}-){3}[a-z0-9]{12}$/
-            self.query :get, "#{options[:getter]}(guid'#{id}')"
+            self.query :get, "#{options[:getter]}(guid'#{id}')", nil, false, options[:service]
           else
-            self.query :get, "#{options[:get_from_name]}('#{URI.encode id}')"
+            self.query :get, "#{options[:get_from_name]}('#{URI.encode id}')", nil, false, options[:service]
           end
         end
       end
