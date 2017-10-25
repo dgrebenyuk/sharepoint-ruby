@@ -80,6 +80,7 @@ module Sharepoint
           curl.headers["X-RequestDigest"] = form_digest unless @getting_form_digest
         end
         curl.verbose = @verbose
+        curl.ssl_verify_peer = false
         @session.send :curl, curl if @session.methods.include? :curl
         block.call curl           if block.present?
       end
