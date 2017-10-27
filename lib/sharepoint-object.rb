@@ -165,10 +165,16 @@ module Sharepoint
     end
 
     def create
+      p '==== CREATE ===='
+      p @data
+      p '-------------------'
       @site.query :post, create_uri, @data.to_json
     end
 
     def update
+      p '==== UPDATE ===='
+      p @updated_data
+      p '-------------------'
       @updated_data['__metadata'] ||= @data['__metadata']
       @site.query :post, resource_uri, @updated_data.to_json do |curl|
         curl.headers['X-HTTP-Method'] = 'MERGE'

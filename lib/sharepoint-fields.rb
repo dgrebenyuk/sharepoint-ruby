@@ -1,4 +1,10 @@
 module Sharepoint
+  class FieldUrlValue < Sharepoint::Object
+    include Sharepoint::Type
+    field 'Description'
+    field 'Url'
+  end
+
   class Field < Sharepoint::Object
     include Sharepoint::Type
     sharepoint_resource

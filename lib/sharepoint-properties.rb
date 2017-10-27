@@ -28,7 +28,7 @@ module Sharepoint
         end
         define_singleton_method property.underscore + '=' do |new_value|
           @data[property]         = new_value
-          @updated_data[property] = new_value
+          @updated_data[property] = new_value.is_a?(Sharepoint::Object) ? new_value.data : new_value
         end if editable == true
       end
     end
@@ -86,7 +86,7 @@ module Sharepoint
     def is_property_editable? property_name
       # We don't know a priori what the fields are for a generic object, so leave the validation work to the user
       return true if self.is_a?(GenericSharepointObject)
-        
+
       self.class.fields.each do |field|
         return field[:access].include? :write if field[:name] == property_name
       end

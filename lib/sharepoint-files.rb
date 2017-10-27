@@ -1,6 +1,26 @@
 require 'open-uri'
 
 module Sharepoint
+  class AvailableContentType < Sharepoint::Object
+    include Sharepoint::Type
+    sharepoint_resource
+  end
+
+  class WorkflowTemplate < Sharepoint::Object
+    include Sharepoint::Type
+    sharepoint_resource
+  end
+  class Workflow < Sharepoint::Object
+    include Sharepoint::Type
+  end
+  class AllProperty < Sharepoint::Object
+    include Sharepoint::Type
+    sharepoint_resource method_name: 'allproperties'
+  end
+  class GetAvailableWebTemplate < Sharepoint::Object
+    include Sharepoint::Type
+    sharepoint_resource
+  end
   class Folder < Sharepoint::Object
     include Sharepoint::Type
     sharepoint_resource getter: 'GetFolderById',
