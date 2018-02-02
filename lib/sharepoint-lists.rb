@@ -86,7 +86,7 @@ module Sharepoint
     end
 
     def get_item_by_id(id)
-      @site.query :get, "#{__metadata['id']}/getitembyid(#{id})"
+      @site.query :get, "#{__metadata['id']}/getitembyid(#{id})?$expand=OData__MODERATIONSTATUS"
     end
 
     def item_count
