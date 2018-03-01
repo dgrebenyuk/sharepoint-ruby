@@ -28,11 +28,11 @@ module Sharepoint
   end
 
   class Session
-    class ConnexionToStsFailed < Exception ; end
-    class ConnexionToSharepointFailed < Exception; end
-    class UnknownAuthenticationError  < Exception; end
-    class AuthenticationFailed < Exception
-      def initialize message ; super message ; end
+    class ConnexionToStsFailed < StandardError; end
+    class ConnexionToSharepointFailed < StandardError; end
+    class UnknownAuthenticationError  < StandardError; end
+    class AuthenticationFailed < StandardError
+      def initialize message; super message; end
     end
 
     attr_accessor :site

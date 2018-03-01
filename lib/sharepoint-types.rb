@@ -1,7 +1,7 @@
 require 'sharepoint-object'
 
 module Sharepoint
-  class UnsupportedType < ::Exception
+  class UnsupportedType < ::StandardError
     attr_accessor :type_name
 
     def initialize type_name

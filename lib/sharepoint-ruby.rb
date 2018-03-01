@@ -5,7 +5,8 @@ require 'sharepoint-object'
 require 'sharepoint-types'
 
 module Sharepoint
-  class SPException < Exception
+  class ParseError < StandardError; end
+  class SPException < StandardError
     def initialize data, uri = nil, body = nil
       @data = data['error']
       @uri  = uri
@@ -91,7 +92,7 @@ module Sharepoint
           raise Sharepoint::SPException.new data, uri, body unless data['error'].nil?
           make_object_from_response data
         rescue JSON::ParserError => e
-          raise Exception.new("Exception with body=#{body}, e=#{e.inspect}, #{e.backtrace.inspect}, response=#{result.body_str}")
+          raise Sharepoint::ParseError.new("Sharepoint::ParseError with body=#{body}, e=#{e.inspect}, #{e.backtrace.inspect}, response=#{result.body_str}")
         end
       else
         result.body_str
