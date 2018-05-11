@@ -23,8 +23,8 @@ module Sharepoint
       unless @properties_original_names.include? property
         @properties_names          << property.underscore.to_sym
         @properties_original_names << property
-        define_singleton_method property.underscore do
-          get_property property
+        define_singleton_method property.underscore do |params = {}|
+          get_property(property, params)
         end
         define_singleton_method property.underscore + '=' do |new_value|
           @data[property]         = new_value
@@ -58,13 +58,11 @@ module Sharepoint
       @initialize_properties = false
     end
 
-    def get_property property_name
+    def get_property(property_name, params = {})
       data = @data[property_name]
-      if not @properties[property_name].nil?
-        @properties[property_name]
-      elsif data.class == Hash
+      if data.class == Hash
         if not data['__deferred'].nil?
-          @properties[property_name] = get_deferred_property property_name
+          @properties[property_name] = get_deferred_property(property_name, params)
         elsif not data['__metadata'].nil?
           @properties[property_name] = @site.make_object_from_data data
         else
@@ -77,9 +75,10 @@ module Sharepoint
       end
     end
 
-    def get_deferred_property property_name
+    def get_deferred_property(property_name, params = {})
       deferred_data = @data[property_name]['__deferred']
       uri           = deferred_data['uri'].gsub /^http.*\/_api\/web\//i, ''
+      uri = "#{uri}?#{params.to_query}" unless params.empty?
       @site.query :get, uri
     end
 
