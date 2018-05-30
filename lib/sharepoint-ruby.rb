@@ -43,7 +43,12 @@ module Sharepoint
 
     def api_path uri, service
       if service == 'video'
-        "#{@protocol}://#{@server_url}/portals/hub/_api/videoservice/#{uri}"
+        site_url = @server_url
+        if site_url.include?('cargill.com')
+          site_name = @name.split('/sites/').first
+          site_url += "/#{site_name}"
+        end
+        "#{@protocol}://#{site_url}/portals/hub/_api/videoservice/#{uri}"
       else
         "#{@protocol}://#{@url}/_api/web/#{uri}"
       end
