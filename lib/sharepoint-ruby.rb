@@ -6,6 +6,7 @@ require 'sharepoint-types'
 
 module Sharepoint
   class ParseError < StandardError; end
+  class RequestsThresholdReached < StandardError; end
   class SPException < StandardError
     def initialize data, uri = nil, body = nil
       @data = data['error']
