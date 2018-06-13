@@ -92,6 +92,7 @@ module Sharepoint
           raise Sharepoint::SPException.new data, uri, body unless data['error'].nil?
           make_object_from_response data
         rescue JSON::ParserError => e
+          raise Sharepoint::RequestsThresholdReached if result.response_code == 429
           raise Sharepoint::ParseError.new("Sharepoint::ParseError with body=#{body}, e=#{e.inspect}, #{e.backtrace.inspect}, response=#{result.body_str}")
         end
       else
