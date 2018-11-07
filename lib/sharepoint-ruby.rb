@@ -9,14 +9,16 @@ module Sharepoint
   class RequestsThresholdReached < StandardError; end
   class SPException < StandardError
     def initialize data, uri = nil, body = nil
-      @data = data['error']
+      @data = data
       @uri  = uri
       @body = body
     end
 
-    def lang         ; @data['message']['lang']  ; end
-    def message      ; @data['message']['value'] ; end
-    def code         ; @data['code'] ; end
+    def lang         ; @data['error']['message']['lang']  ; end
+    def message
+      @data['error_description'] || @data['error']['message']['value']
+    end
+    def code         ; @data['error']['code'] ; end
     def uri          ; @uri ; end
     def request_body ; @body ; end
   end
