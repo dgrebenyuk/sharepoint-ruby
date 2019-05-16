@@ -96,6 +96,7 @@ module Sharepoint
     def add_item attributes
       attributes['__metadata']         ||= Hash.new
       attributes['__metadata']['type'] ||= list_item_entity_type_full_name
+      Rails.logger.info("Sharepoint:List:add_item :post, #{attributes.to_json}")
       @site.query :post, item_uri, attributes.to_json
     end
 
@@ -108,6 +109,7 @@ module Sharepoint
       attributes['Path']          ||= path
       payload                       = VtiBin.translate_field_names(attributes).to_json
       # Create the item using _vti_bin api
+      Rails.logger.info("Sharepoint:List:add_folder :post, #{action} with payload #{payload}")
       response = @site.query :post, action, payload, true do |curl|
         curl.headers['Slug'] = "#{path}/#{attributes['Title']}|0x0120"
       end
