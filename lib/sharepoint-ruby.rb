@@ -96,6 +96,7 @@ module Sharepoint
       unless skip_json || (result.body_str.nil? || result.body_str.empty?)
         begin
           data = JSON.parse result.body_str
+          Rails.logger.info("Sharepoint:query #{uri} returned #{data}")
           unless data['error'].nil?
             Rails.logger.info("Sharepoint:query receive error #{data['error'].inspect} from #{method}->#{uri}(#{body})")
             raise Sharepoint::SPException.new data, uri, body 
