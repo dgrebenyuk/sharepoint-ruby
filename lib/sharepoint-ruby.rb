@@ -93,23 +93,24 @@ module Sharepoint
         block.call curl           if block.present?
       end
 
-      unless skip_json || (result.body_str.nil? || result.body_str.empty?)
+      if skip_json || result.body_str.nil? || result.body_str.empty?
+        result.body_str
+      else
         begin
           data = JSON.parse result.body_str
           Rails.logger.info("Sharepoint:query #{uri} returned #{data}")
-          unless data['error'].nil?
-            Rails.logger.info("Sharepoint:query receive error #{data['error'].inspect} from #{method}->#{uri}(#{body})")
-            raise Sharepoint::SPException.new data, uri, body 
+          error = data['error'] || data['error_description']
+          if error
+            Rails.logger.info("Sharepoint:query receive error #{error.inspect} from #{method}->#{uri}(#{body})")
+            raise Sharepoint::SPException.new data, uri, body
           end
-          
+
           make_object_from_response data
         rescue JSON::ParserError => e
           Rails.logger.info("Sharepoint:query Sharepoint::ParseError from #{method}->#{uri}(#{body}) resulted in body=#{body}, e=#{e.inspect}, #{e.backtrace.inspect}, response=#{result.body_str}")
           raise Sharepoint::RequestsThresholdReached if result.response_code == 429
           raise Sharepoint::ParseError.new("Sharepoint::ParseError with body=#{body}, e=#{e.inspect}, #{e.backtrace.inspect}, response=#{result.body_str}")
         end
-      else
-        result.body_str
       end
     end
 
