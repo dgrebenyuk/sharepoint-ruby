@@ -77,23 +77,31 @@ module Sharepoint
       arguments  = [ uri ]
       arguments << body unless method == :get
       Rails.logger.info("Sharepoint:query before send #{method}->#{uri}(#{body})")
-      result = Curl::Easy.send "http_#{method}", *arguments do |curl|
-        curl.headers["Cookie"]          = @session.cookie
-        curl.headers["Accept"]          = "application/json;odata=verbose"
-        if method != :get
-          curl.headers["Content-Type"]    = curl.headers["Accept"]
-          unless @getting_form_digest
-            curl.headers["X-RequestDigest"] = form_digest
-            Rails.logger.info("Sharepoint:query get digest #{method} #{uri} RequestDigest #{form_digest}")
+      begin
+        result = Curl::Easy.send "http_#{method}", *arguments do |curl|
+          curl.headers["Cookie"]          = @session.cookie
+          curl.headers["Accept"]          = "application/json;odata=verbose"
+          if method != :get
+            curl.headers["Content-Type"]    = curl.headers["Accept"]
+            unless @getting_form_digest
+              curl.headers["X-RequestDigest"] = form_digest
+              Rails.logger.info("Sharepoint:query get digest #{method} #{uri} RequestDigest #{form_digest}")
+            end
           end
+          curl.verbose = @verbose
+          curl.ssl_verify_peer = false
+          @session.send :curl, curl if @session.methods.include? :curl
+          block.call curl           if block.present?
         end
-        curl.verbose = @verbose
-        curl.ssl_verify_peer = false
-        @session.send :curl, curl if @session.methods.include? :curl
-        block.call curl           if block.present?
+      rescue => e
+        Rails.logger.error("Sharepoint:query result is exception #{e.inspect}, #{e.backtrace.inspect} from #{method}->#{uri}(#{body})")
+        raise e
       end
 
       if skip_json || result.body_str.nil? || result.body_str.empty?
+        unless result.response_code >= 200 && result.response_code < 300
+          Rails.logger.info("Sharepoint:query status is not success status=#{result.status}, body=#{result.body_str} from #{method}->#{uri}(#{body})")
+        end
         result.body_str
       else
         begin
@@ -101,15 +109,15 @@ module Sharepoint
           Rails.logger.info("Sharepoint:query #{uri} returned #{data}")
           error = data['error'] || data['error_description']
           if error
-            Rails.logger.info("Sharepoint:query receive error #{error.inspect} from #{method}->#{uri}(#{body})")
+            Rails.logger.info("Sharepoint:query received error status=#{result.status}, error=#{error.inspect} from #{method}->#{uri}(#{body})")
             raise Sharepoint::SPException.new data, uri, body
           end
 
           make_object_from_response data
         rescue JSON::ParserError => e
-          Rails.logger.info("Sharepoint:query Sharepoint::ParseError from #{method}->#{uri}(#{body}) resulted in body=#{body}, e=#{e.inspect}, #{e.backtrace.inspect}, response=#{result.body_str}")
-          raise Sharepoint::RequestsThresholdReached if result.response_code == 429
-          raise Sharepoint::ParseError.new("Sharepoint::ParseError with body=#{body}, e=#{e.inspect}, #{e.backtrace.inspect}, response=#{result.body_str}")
+          Rails.logger.info("Sharepoint:query Sharepoint::ParseError status=#{result.status}, body=#{result.body_str}, e=#{e.inspect}, #{e.backtrace.inspect} from #{method}->#{uri}(#{body})")
+          raise Sharepoint::RequestsThresholdReached.new("Sharepoint:query RequestsThresholdReached for request #{method}->#{uri}(#{body})") if result.response_code == 429
+          raise Sharepoint::ParseError.new("Sharepoint::ParseError status=#{result.status}, body=#{result.body_str}, e=#{e.inspect}, #{e.backtrace.inspect} from #{method}->#{uri}(#{body})")
         end
       end
     end
